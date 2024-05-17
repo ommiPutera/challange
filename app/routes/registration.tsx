@@ -7,6 +7,9 @@ import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 import { createUser, getUserByEmail } from "~/models/user.server";
 import { createUserSession, getUserId } from "~/session.server";
 import { safeRedirect, validateEmail } from "~/utils";
@@ -21,25 +24,33 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
+  const fullName = formData.get("fullName");
+  const redirectTo = safeRedirect(formData.get("redirectTo"), "/notes");
 
   if (!validateEmail(email)) {
     return json(
-      { errors: { email: "Email is invalid", password: null } },
+      { errors: { email: "Email tidak valid", password: null, fullName: null } },
+      { status: 400 },
+    );
+  }
+
+  if (typeof fullName !== "string" || fullName.length === 0) {
+    return json(
+      { errors: { email: null, password: null, fullName: "Nama Lengkap tidak boleh kosong!" } },
       { status: 400 },
     );
   }
 
   if (typeof password !== "string" || password.length === 0) {
     return json(
-      { errors: { email: null, password: "Password is required" } },
+      { errors: { email: null, password: "Kata Sandi tidak boleh kosong!", fullName: null } },
       { status: 400 },
     );
   }
 
   if (password.length < 8) {
     return json(
-      { errors: { email: null, password: "Password is too short" } },
+      { errors: { email: null, password: "Kata Sandi terlalu pendek", fullName: null } },
       { status: 400 },
     );
   }
@@ -49,15 +60,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return json(
       {
         errors: {
-          email: "A user already exists with this email",
+          email: "Pengguna dengan email tersebut telah terdaftar",
           password: null,
+          fullName: null
         },
       },
       { status: 400 },
     );
   }
 
-  const user = await createUser(email, password);
+  const user = await createUser(email, password, fullName);
 
   return createUserSession({
     redirectTo,
@@ -67,17 +79,20 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 };
 
-export const meta: MetaFunction = () => [{ title: "Sign Up" }];
+export const meta: MetaFunction = () => [{ title: "Daftar | Chanllange" }];
 
-export default function Join() {
+export default function Registration() {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? undefined;
   const actionData = useActionData<typeof action>();
+  const fullNameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (actionData?.errors?.email) {
+    if (actionData?.errors?.fullName) {
+      fullNameRef.current?.focus();
+    } else if (actionData?.errors?.email) {
       emailRef.current?.focus();
     } else if (actionData?.errors?.password) {
       passwordRef.current?.focus();
@@ -87,30 +102,52 @@ export default function Join() {
   return (
     <div className="flex min-h-full flex-col justify-center">
       <div className="mx-auto w-full max-w-md px-8">
+        <h3 className="scroll-m-20 text-2xl font-bold">
+          Buat Akun
+        </h3>
+        <br />
+        <br />
         <Form method="post" className="space-y-6">
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email address
-            </label>
+            <Label htmlFor="fullName">Nama Lengkap</Label>
             <div className="mt-1">
-              <input
-                ref={emailRef}
-                id="email"
+              <Input
+                ref={fullNameRef}
+                id="fullName"
                 required
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus={true}
+                name="fullName"
+                placeholder="Nama lengkap Anda"
+                type="text"
+                autoComplete="fullName"
+                aria-invalid={actionData?.errors?.fullName ? true : undefined}
+                aria-describedby="fullName-error"
+              />
+              {actionData?.errors?.fullName ? (
+                <div className="pt-2 text-sm text-red-500" id="fullName-error">
+                  {actionData.errors.fullName}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <div className="mt-1">
+              <Input
+                ref={emailRef}
+                id="email"
+                required
                 name="email"
+                placeholder="Masukan email anda"
                 type="email"
                 autoComplete="email"
                 aria-invalid={actionData?.errors?.email ? true : undefined}
                 aria-describedby="email-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
               />
               {actionData?.errors?.email ? (
-                <div className="pt-1 text-red-700" id="email-error">
+                <div className="pt-2 text-sm text-red-500" id="email-error">
                   {actionData.errors.email}
                 </div>
               ) : null}
@@ -118,25 +155,20 @@ export default function Join() {
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
+            <Label htmlFor="password">Kata Sandi</Label>
             <div className="mt-1">
-              <input
+              <Input
                 id="password"
                 ref={passwordRef}
                 name="password"
+                placeholder="Kata Sandi (Minimal 8 karakter)"
                 type="password"
                 autoComplete="new-password"
                 aria-invalid={actionData?.errors?.password ? true : undefined}
                 aria-describedby="password-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
               />
               {actionData?.errors?.password ? (
-                <div className="pt-1 text-red-700" id="password-error">
+                <div className="pt-2 text-sm text-red-500" id="password-error">
                   {actionData.errors.password}
                 </div>
               ) : null}
@@ -144,23 +176,24 @@ export default function Join() {
           </div>
 
           <input type="hidden" name="redirectTo" value={redirectTo} />
-          <button
+          <Button
             type="submit"
-            className="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
+            variant="default"
+            className="w-full"
           >
-            Create Account
-          </button>
+            Daftar Sekarang
+          </Button>
           <div className="flex items-center justify-center">
-            <div className="text-center text-sm text-gray-500">
-              Already have an account?{" "}
+            <div className="text-center text-xs text-gray-500">
+              Sudah memiliki akun?{" "}
               <Link
-                className="text-blue-500 underline"
+                className="font-semibold text-primary underline"
                 to={{
-                  pathname: "/login",
+                  pathname: "/",
                   search: searchParams.toString(),
                 }}
               >
-                Log in
+                Masuk di sini
               </Link>
             </div>
           </div>
