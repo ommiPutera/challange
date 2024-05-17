@@ -5,7 +5,7 @@ import type {
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
-import { useEffect, useRef } from "react";
+import React from "react";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -16,7 +16,7 @@ import { safeRedirect, validateEmail } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await getUserId(request);
-  if (userId) return redirect("/notes");
+  if (userId) return redirect("/dashboard");
   return json({});
 };
 
@@ -24,7 +24,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/notes");
+  const redirectTo = safeRedirect(formData.get("redirectTo"), "/dashboard");
   const remember = formData.get("remember");
 
   if (!validateEmail(email)) {
@@ -71,10 +71,10 @@ export default function LoginPage() {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/";
   const actionData = useActionData<typeof action>();
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
+  const emailRef = React.useRef<HTMLInputElement>(null);
+  const passwordRef = React.useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (actionData?.errors?.email) {
       emailRef.current?.focus();
     } else if (actionData?.errors?.password) {
@@ -88,68 +88,70 @@ export default function LoginPage() {
         <h3 className="scroll-m-20 text-2xl font-bold">
           Selamat Datang
         </h3>
-        <p className="leading-snug text-xs text-gray-500 mt-2">
+        <p className="leading-snug text-sm text-gray-500 mt-2">
           Aplikasi ini bertujuan untuk proses Technical Challenge Fullstack &#40;FS&#41; kandidat Ommi Putera
         </p>
         <br />
-        <br />
         <Form method="post" className="space-y-6">
-          <div>
-            <Label htmlFor="email">
-              Email
-            </Label>
-            <div className="mt-1">
-              <Input
-                ref={emailRef}
-                id="email"
-                required
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus={true}
-                name="email"
-                placeholder="Masukan email anda"
-                type="email"
-                autoComplete="email"
-                aria-invalid={actionData?.errors?.email ? true : undefined}
-                aria-describedby="email-error"
-              />
-              {actionData?.errors?.email ? (
-                <div className="pt-2 text-sm text-red-500" id="email-error">
-                  {actionData.errors.email}
-                </div>
-              ) : null}
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="email">
+                Email
+              </Label>
+              <div className="mt-1">
+                <Input
+                  ref={emailRef}
+                  id="email"
+                  required
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
+                  autoFocus={true}
+                  name="email"
+                  placeholder="Masukan email anda"
+                  type="email"
+                  autoComplete="email"
+                  aria-invalid={actionData?.errors?.email ? true : undefined}
+                  aria-describedby="email-error"
+                />
+                {actionData?.errors?.email ? (
+                  <div className="pt-2 text-sm text-red-500" id="email-error">
+                    {actionData.errors.email}
+                  </div>
+                ) : null}
+              </div>
             </div>
-          </div>
 
-          <div>
-            <Label htmlFor="password">
-              Kata Sandi
-            </Label>
-            <div className="mt-1">
-              <Input
-                id="password"
-                ref={passwordRef}
-                name="password"
-                placeholder="Masukan kata sandi anda"
-                type="password"
-                autoComplete="current-password"
-                aria-invalid={actionData?.errors?.password ? true : undefined}
-                aria-describedby="password-error"
-              />
-              {actionData?.errors?.password ? (
-                <div className="pt-2 text-sm text-red-500" id="password-error">
-                  {actionData.errors.password}
-                </div>
-              ) : null}
+            <div>
+              <Label htmlFor="password">
+                Kata Sandi
+              </Label>
+              <div className="mt-1">
+                <Input
+                  id="password"
+                  ref={passwordRef}
+                  name="password"
+                  placeholder="Masukan kata sandi anda"
+                  type="password"
+                  autoComplete="current-password"
+                  aria-invalid={actionData?.errors?.password ? true : undefined}
+                  aria-describedby="password-error"
+                />
+                {actionData?.errors?.password ? (
+                  <div className="pt-2 text-sm text-red-500" id="password-error">
+                    {actionData.errors.password}
+                  </div>
+                ) : null}
+              </div>
             </div>
+            <Button
+              type="submit"
+              variant="default"
+              className="w-full"
+            >
+              Masuk
+            </Button>
           </div>
           <input type="hidden" name="redirectTo" value={redirectTo} />
-          <Button
-            type="submit"
-            variant="default"
-            className="w-full"
-          >
-            Masuk
-          </Button>
+
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input

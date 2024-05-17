@@ -5,7 +5,7 @@ import type {
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
-import { useEffect, useRef } from "react";
+import React from "react";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -85,11 +85,11 @@ export default function Registration() {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? undefined;
   const actionData = useActionData<typeof action>();
-  const fullNameRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
+  const fullNameRef = React.useRef<HTMLInputElement>(null);
+  const emailRef = React.useRef<HTMLInputElement>(null);
+  const passwordRef = React.useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (actionData?.errors?.fullName) {
       fullNameRef.current?.focus();
     } else if (actionData?.errors?.email) {
@@ -106,83 +106,84 @@ export default function Registration() {
           Buat Akun
         </h3>
         <br />
-        <br />
         <Form method="post" className="space-y-6">
-          <div>
-            <Label htmlFor="fullName">Nama Lengkap</Label>
-            <div className="mt-1">
-              <Input
-                ref={fullNameRef}
-                id="fullName"
-                required
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus={true}
-                name="fullName"
-                placeholder="Nama lengkap Anda"
-                type="text"
-                autoComplete="fullName"
-                aria-invalid={actionData?.errors?.fullName ? true : undefined}
-                aria-describedby="fullName-error"
-              />
-              {actionData?.errors?.fullName ? (
-                <div className="pt-2 text-sm text-red-500" id="fullName-error">
-                  {actionData.errors.fullName}
-                </div>
-              ) : null}
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="fullName">Nama Lengkap</Label>
+              <div className="mt-1">
+                <Input
+                  ref={fullNameRef}
+                  id="fullName"
+                  required
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
+                  autoFocus={true}
+                  name="fullName"
+                  placeholder="Nama lengkap Anda"
+                  type="text"
+                  autoComplete="fullName"
+                  aria-invalid={actionData?.errors?.fullName ? true : undefined}
+                  aria-describedby="fullName-error"
+                />
+                {actionData?.errors?.fullName ? (
+                  <div className="pt-2 text-sm text-red-500" id="fullName-error">
+                    {actionData.errors.fullName}
+                  </div>
+                ) : null}
+              </div>
             </div>
-          </div>
 
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <div className="mt-1">
-              <Input
-                ref={emailRef}
-                id="email"
-                required
-                name="email"
-                placeholder="Masukan email anda"
-                type="email"
-                autoComplete="email"
-                aria-invalid={actionData?.errors?.email ? true : undefined}
-                aria-describedby="email-error"
-              />
-              {actionData?.errors?.email ? (
-                <div className="pt-2 text-sm text-red-500" id="email-error">
-                  {actionData.errors.email}
-                </div>
-              ) : null}
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <div className="mt-1">
+                <Input
+                  ref={emailRef}
+                  id="email"
+                  required
+                  name="email"
+                  placeholder="Masukan email anda"
+                  type="email"
+                  autoComplete="email"
+                  aria-invalid={actionData?.errors?.email ? true : undefined}
+                  aria-describedby="email-error"
+                />
+                {actionData?.errors?.email ? (
+                  <div className="pt-2 text-sm text-red-500" id="email-error">
+                    {actionData.errors.email}
+                  </div>
+                ) : null}
+              </div>
             </div>
-          </div>
 
-          <div>
-            <Label htmlFor="password">Kata Sandi</Label>
-            <div className="mt-1">
-              <Input
-                id="password"
-                ref={passwordRef}
-                name="password"
-                placeholder="Kata Sandi (Minimal 8 karakter)"
-                type="password"
-                autoComplete="new-password"
-                aria-invalid={actionData?.errors?.password ? true : undefined}
-                aria-describedby="password-error"
-              />
-              {actionData?.errors?.password ? (
-                <div className="pt-2 text-sm text-red-500" id="password-error">
-                  {actionData.errors.password}
-                </div>
-              ) : null}
+            <div>
+              <Label htmlFor="password">Kata Sandi</Label>
+              <div className="mt-1">
+                <Input
+                  id="password"
+                  ref={passwordRef}
+                  name="password"
+                  placeholder="Kata Sandi (Minimal 8 karakter)"
+                  type="password"
+                  autoComplete="new-password"
+                  aria-invalid={actionData?.errors?.password ? true : undefined}
+                  aria-describedby="password-error"
+                />
+                {actionData?.errors?.password ? (
+                  <div className="pt-2 text-sm text-red-500" id="password-error">
+                    {actionData.errors.password}
+                  </div>
+                ) : null}
+              </div>
             </div>
+            <Button
+              type="submit"
+              variant="default"
+              className="w-full"
+            >
+              Daftar Sekarang
+            </Button>
           </div>
-
           <input type="hidden" name="redirectTo" value={redirectTo} />
-          <Button
-            type="submit"
-            variant="default"
-            className="w-full"
-          >
-            Daftar Sekarang
-          </Button>
+
           <div className="flex items-center justify-center">
             <div className="text-center text-xs text-gray-500">
               Sudah memiliki akun?{" "}
