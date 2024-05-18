@@ -29,28 +29,52 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   if (!validateEmail(email)) {
     return json(
-      { errors: { email: "Email tidak valid", password: null, fullName: null } },
+      {
+        errors: {
+          email: "Email tidak valid",
+          password: null,
+          fullName: null
+        }
+      },
       { status: 400 },
     );
   }
 
   if (typeof fullName !== "string" || fullName.length === 0) {
     return json(
-      { errors: { email: null, password: null, fullName: "Nama Lengkap tidak boleh kosong!" } },
+      {
+        errors: {
+          email: null,
+          password: null,
+          fullName: "Nama Lengkap tidak boleh kosong!"
+        }
+      },
       { status: 400 },
     );
   }
 
   if (typeof password !== "string" || password.length === 0) {
     return json(
-      { errors: { email: null, password: "Kata Sandi tidak boleh kosong!", fullName: null } },
+      {
+        errors: {
+          email: null,
+          password: "Kata Sandi tidak boleh kosong!",
+          fullName: null
+        }
+      },
       { status: 400 },
     );
   }
 
   if (password.length < 8) {
     return json(
-      { errors: { email: null, password: "Kata Sandi terlalu pendek", fullName: null } },
+      {
+        errors: {
+          email: null,
+          password: "Kata Sandi terlalu pendek",
+          fullName: null
+        }
+      },
       { status: 400 },
     );
   }

@@ -2,7 +2,7 @@ import { Form, Link, useLocation } from "@remix-run/react";
 import { DoorOpen, icons } from "lucide-react";
 
 import { Icon } from "~/components/icons";
-import { Avatar, AvatarFallback } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { useUser } from "~/utils";
@@ -16,6 +16,7 @@ export default function DashboardSidebar() {
           <Link to="/dashboard/profile" className="border w-full px-4 py-6 bg-muted/50 rounded-lg hover:border-gray-300">
             <div className="flex items-center gap-3">
               <Avatar>
+                <AvatarImage src="/no-profile.jpg" />
                 <AvatarFallback className="uppercase">
                   {user?.fullName?.[0]}
                 </AvatarFallback>
