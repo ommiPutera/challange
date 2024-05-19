@@ -35,7 +35,7 @@ async function sendEmailVerif({ to, fullName, userId }: { to: string, fullName: 
         <div style="margin: 0 auto; max-width: 450px;">
 
           <h2 style="text-align: center">Verifikasi alamat email Anda</h2>
-          <p style="text-align: center">Hallo ${fullName}, Mohon konfirmasi alamat email Anda untuk melanjutkan proses registrasi</p>
+          <p style="text-align: center">Hallo ${fullName}, Mohon konfirmasi alamat email Anda dengan menekan tombol verifikasi dibawah, untuk melanjutkan proses registrasi</p>
           <br></br>
           <a href="http://localhost:3000/registration/user-verify?id=${userId}" style="display: block; margin: 0 auto; width: 50%; padding: 0.5rem; background: #10172a; border-radius: 7px; border-width: 0; font-size: 0.9rem; text-align: center; font-family: sans-serif; text-decoration: none; color: white">
             Verifikasi

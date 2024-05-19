@@ -3,20 +3,28 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { MailCheck, MailX } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
-import { setUserAcitve } from "~/models/user.server";
+import { getUserById, setUserAcitve } from "~/models/user.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { searchParams } = new URL(request.url);
-  const userId = searchParams.get("id")
+  const id = searchParams.get("id")
 
-  if (userId) {
-    await setUserAcitve({ userId })
+  if (!id) return json({
+    userActive: false,
+    userId: null
+  });
+
+  const user = await getUserById(id)
+
+  if (user) {
+    if (!user?.isActive) await setUserAcitve({ userId: user.id })
 
     return json({
       userActive: true,
-      userId: userId
+      userId: user.id
     })
   }
+
   return json({
     userActive: false,
     userId: null

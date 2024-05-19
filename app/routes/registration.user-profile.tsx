@@ -1,5 +1,5 @@
-import { ActionFunctionArgs, json, MetaFunction } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { ActionFunctionArgs, json, LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
+import { Form, Link, useActionData } from "@remix-run/react";
 import React from "react";
 
 import { Button } from "~/components/ui/button";
@@ -7,6 +7,27 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
+import { getUserById } from "~/models/user.server";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id")
+
+  if (!id) return redirect("/")
+
+  const user = await getUserById(id)
+
+  if (user) {
+    if (!user.isActive) return redirect("/")
+
+    return json({
+      userActive: true,
+      userId: user.id
+    })
+  }
+
+  return redirect("/")
+};
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -186,13 +207,23 @@ export default function UserProfilePage() {
               </div>
             </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3">
             <Button
               type="submit"
               variant="default"
               className="w-full"
             >
-              Simpan
+              Lanjutkan
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full"
+              asChild
+            >
+              <Link to="/">
+                Nanti
+              </Link>
             </Button>
           </div>
         </Form>
