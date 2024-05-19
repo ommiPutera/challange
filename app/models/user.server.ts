@@ -29,6 +29,15 @@ export async function createUser(email: User["email"], password: string, fullNam
   });
 }
 
+export async function setUserAcitve({userId}: { userId: string }) {
+  return prisma.user.update({
+    where: { id: userId },
+    data: {
+      isActive: true,
+    }
+  });
+}
+
 export async function deleteUserByEmail(email: User["email"]) {
   return prisma.user.delete({ where: { email } });
 }

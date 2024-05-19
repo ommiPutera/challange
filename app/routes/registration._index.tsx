@@ -11,8 +11,9 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { createUser, getUserByEmail } from "~/models/user.server";
-import { createUserSession, getUserId } from "~/session.server";
+import { getUserId } from "~/session.server";
 import { safeRedirect, validateEmail } from "~/utils";
+import { sendEmailVerif } from "~/utils/sendEmail.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await getUserId(request);
@@ -25,7 +26,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const email = formData.get("email");
   const password = formData.get("password");
   const fullName = formData.get("fullName");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/notes");
+  const redirectTo = safeRedirect(formData.get("redirectTo"), "/registration/success-send-email");
 
   if (!validateEmail(email)) {
     return json(
@@ -94,12 +95,20 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   const user = await createUser(email, password, fullName);
-  return createUserSession({
-    redirectTo,
-    remember: false,
-    request,
-    userId: user.id,
-  });
+
+  await sendEmailVerif({
+    to: email,
+    fullName: fullName,
+    userId: user.id
+  })
+  return redirect(redirectTo)
+
+  // return createUserSession({
+  //   redirectTo,
+  //   remember: false,
+  //   request,
+  //   userId: user.id,
+  // });
 };
 
 export const meta: MetaFunction = () => [{ title: "Daftar | Challange" }];
