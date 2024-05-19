@@ -94,7 +94,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   const user = await createUser(email, password, fullName);
-
   return createUserSession({
     redirectTo,
     remember: false,
@@ -103,7 +102,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 };
 
-export const meta: MetaFunction = () => [{ title: "Daftar | Chanllange" }];
+export const meta: MetaFunction = () => [{ title: "Daftar | Challange" }];
 
 export default function Registration() {
   const [searchParams] = useSearchParams();
@@ -142,7 +141,7 @@ export default function Registration() {
                   // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus={true}
                   name="fullName"
-                  placeholder="Nama lengkap Anda"
+                  placeholder="Masukan nama lengkap Anda"
                   type="text"
                   autoComplete="fullName"
                   aria-invalid={actionData?.errors?.fullName ? true : undefined}
@@ -199,6 +198,7 @@ export default function Registration() {
               </div>
             </div>
             <Button
+              size="lg"
               type="submit"
               variant="default"
               className="w-full"

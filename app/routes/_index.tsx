@@ -16,7 +16,7 @@ import { safeRedirect, validateEmail } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await getUserId(request);
-  if (userId) return redirect("/dashboard");
+  if (userId) return redirect("/dashboard/profile");
   return json({});
 };
 
@@ -24,7 +24,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/dashboard");
+  const redirectTo = safeRedirect(formData.get("redirectTo"), "/dashboard/profile");
   const remember = formData.get("remember");
 
   if (!validateEmail(email)) {
@@ -65,7 +65,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 };
 
-export const meta: MetaFunction = () => [{ title: "Masuk | Chanllange" }];
+export const meta: MetaFunction = () => [{ title: "Masuk | Challange" }];
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
@@ -143,6 +143,7 @@ export default function LoginPage() {
               </div>
             </div>
             <Button
+              size="lg"
               type="submit"
               variant="default"
               className="w-full"

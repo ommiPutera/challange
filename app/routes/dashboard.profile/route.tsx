@@ -121,7 +121,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   )
 };
 
-export const meta: MetaFunction = () => [{ title: "Profile | Chanllange" }];
+export const meta: MetaFunction = () => [{ title: "Profile | Challange" }];
 
 export default function ProfilePage() {
   const user = useUser()
