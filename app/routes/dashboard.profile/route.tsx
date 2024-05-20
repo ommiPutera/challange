@@ -1,10 +1,15 @@
 import { ActionFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
+import { format } from "date-fns";
+import { id as localID } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
 import React from "react";
 
 import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
 import { useUser, validateEmail } from "~/utils";
@@ -16,6 +21,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const fullName = formData.get("fullName");
   const address = formData.get("address");
   const occupation = formData.get("occupation");
+  const phoneNumber = formData.get("phoneNumber");
+  const bod = formData.get("bod");
 
   if (typeof address !== "string" || address.length === 0) {
     return json(
@@ -25,7 +32,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           password: null,
           fullName: null,
           occupation: null,
-          address: "Alamat tidak boleh kosong!"
+          address: "Alamat tidak boleh kosong!",
+          phoneNumber: null,
+          bod: null,
         }
       },
       { status: 400 },
@@ -41,6 +50,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           fullName: null,
           occupation: "Pekerjaan tidak boleh kosong!",
           address: null,
+          phoneNumber: null,
+          bod: null,
         }
       },
       { status: 400 },
@@ -56,6 +67,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           fullName: null,
           occupation: null,
           address: null,
+          phoneNumber: null,
+          bod: null,
         }
       },
       { status: 400 },
@@ -71,6 +84,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           fullName: "Nama Lengkap tidak boleh kosong!",
           occupation: null,
           address: null,
+          phoneNumber: null,
+          bod: null,
         }
       },
       { status: 400 },
@@ -86,6 +101,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           fullName: null,
           occupation: null,
           address: null,
+          phoneNumber: null,
+          bod: null,
         }
       },
       { status: 400 },
@@ -101,6 +118,42 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           fullName: null,
           occupation: null,
           address: null,
+          phoneNumber: null,
+          bod: null,
+        }
+      },
+      { status: 400 },
+    );
+  }
+
+  if (typeof phoneNumber !== "string" || phoneNumber.length === 0) {
+    return json(
+      {
+        errors: {
+          email: null,
+          password: null,
+          fullName: null,
+          occupation: null,
+          address: null,
+          phoneNumber: "No Telp tidak boleh kosong!",
+          bod: null,
+        }
+      },
+      { status: 400 },
+    );
+  }
+
+  if (typeof bod !== "string" || bod.length === 0) {
+    return json(
+      {
+        errors: {
+          email: null,
+          password: null,
+          fullName: null,
+          occupation: null,
+          address: null,
+          phoneNumber: null,
+          bod: "Tanggal Lahir tidak boleh kosong!",
         }
       },
       { status: 400 },
@@ -115,6 +168,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         fullName: null,
         occupation: null,
         address: null,
+        phoneNumber: null,
+        bod: null,
       }
     },
     { status: 200 },
@@ -132,10 +187,13 @@ export default function ProfilePage() {
   const fullNameRef = React.useRef<HTMLInputElement>(null);
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
+  const phoneNumberRef = React.useRef<HTMLInputElement>(null);
 
   const [isEditing, setIsEditing] = React.useState(false)
-  const [address, setAddress] = React.useState("")
-  const [occupation, setOccupation] = React.useState("")
+  const [address, setAddress] = React.useState(user.address ?? "")
+  const [occupation, setOccupation] = React.useState(user.occupation ?? "")
+  const [phoneNumber, setPhoneNumber] = React.useState(user.phoneNumber ?? "")
+  const [date, setDate] = React.useState<Date | undefined>(user.bod ? new Date(user.bod) : undefined)
 
   React.useEffect(() => {
     if (actionData?.errors?.address) {
@@ -148,6 +206,8 @@ export default function ProfilePage() {
       emailRef.current?.focus();
     } else if (actionData?.errors?.password) {
       passwordRef.current?.focus();
+    } else if (actionData?.errors?.phoneNumber) {
+      phoneNumberRef.current?.focus()
     }
   }, [actionData]);
 
@@ -155,7 +215,7 @@ export default function ProfilePage() {
     <div className="min-h-screen">
       <div className="w-full flex flex-col gap-6 max-w-screen-sm">
         <h1 className="text-2xl font-bold">Profil</h1>
-        <div className="bg-white p-6 rounded-xl border flex flex-col">
+        <div className="bg-white p-8 rounded-2xl border flex flex-col">
           <Form method="post" className="space-y-10">
             <div className="space-y-6">
               <div className="flex items-center gap-4">
@@ -270,7 +330,62 @@ export default function ProfilePage() {
                 </div>
               </div>
               <div className="w-full">
-                <Label htmlFor="phoneNumber">No. HP</Label>
+                <Label htmlFor="profile-phoneNumber">No. HP</Label>
+                <div className="mt-1">
+                  <Input
+                    ref={phoneNumberRef}
+                    required
+                    id="profil-phoneNumber"
+                    name="phoneNumber"
+                    placeholder="Masukan No. HP Anda"
+                    type="tel"
+                    disabled={!isEditing}
+                    autoComplete="phoneNumber"
+                    value={phoneNumber}
+                    onChange={(v) => setPhoneNumber(v.target.value)}
+                    aria-invalid={actionData?.errors?.phoneNumber ? true : undefined}
+                    aria-describedby="phoneNumber-error"
+                  />
+                  {actionData?.errors?.phoneNumber ? (
+                    <div className="pt-2 text-sm text-red-500" id="profile-phoneNumber-error">
+                      {actionData.errors.phoneNumber}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+              <div className="w-full">
+                <Label>Tanggal Lahir</Label>
+                <div className="mt-1">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        disabled={!isEditing}
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date ? format(date, "PPP", { locale: localID }) : <span>Pilih tanggal lahir Anda</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        locale={localID}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <input type="hidden" name="bod" value={String(date ?? "")} />
+                  {actionData?.errors?.bod ? (
+                    <div className="pt-2 text-sm text-red-500" id="bod-error">
+                      {actionData.errors.bod}
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
             <div className="flex gap-3">
@@ -280,8 +395,9 @@ export default function ProfilePage() {
                 onClick={() => {
                   setIsEditing(!isEditing)
                   if (isEditing) {
-                    setAddress("")
-                    setOccupation("")
+                    setAddress(user.address)
+                    setOccupation(user.occupation)
+                    setPhoneNumber(user.phoneNumber)
                   }
                 }}
               >

@@ -1,13 +1,20 @@
 import { ActionFunctionArgs, json, LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
 import { Form, Link, useActionData } from "@remix-run/react";
+import { format } from "date-fns";
+import { id as localID } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
 import React from "react";
 
 import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
-import { getUserById } from "~/models/user.server";
+import { getUserById, updateUserProfile } from "~/models/user.server";
+import { createUserSession } from "~/session.server";
+import { safeRedirect } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { searchParams } = new URL(request.url);
@@ -18,7 +25,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUserById(id)
 
   if (user) {
-    if (!user.isActive) return redirect("/")
+    if (!user.isActive || user.bod) return redirect("/")
 
     return json({
       userActive: true,
@@ -30,10 +37,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id")
+
+  if (!id) return redirect("/")
+
   const formData = await request.formData();
   const address = formData.get("address");
   const occupation = formData.get("occupation");
   const phoneNumber = formData.get("phoneNumber");
+  const bod = formData.get("bod");
+
+  const redirectTo = safeRedirect(formData.get("redirectTo"), "/dashboard/profile");
 
   if (typeof address !== "string" || address.length === 0) {
     return json(
@@ -42,6 +57,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           occupation: null,
           address: "Alamat tidak boleh kosong!",
           phoneNumber: null,
+          bod: null
         }
       },
       { status: 400 },
@@ -55,6 +71,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           occupation: "Pekerjaan tidak boleh kosong!",
           address: null,
           phoneNumber: null,
+          bod: null
         }
       },
       { status: 400 },
@@ -66,25 +83,44 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return json(
       {
         errors: {
-          occupation: "No Telp tidak boleh kosong!",
+          occupation: null,
           address: null,
-          phoneNumber: null,
+          phoneNumber: "No Telp tidak boleh kosong!",
+          bod: null
         }
       },
       { status: 400 },
     );
   }
 
-  return json(
-    {
-      errors: {
-        occupation: null,
-        address: null,
-        phoneNumber: null,
-      }
-    },
-    { status: 200 },
-  )
+  if (typeof bod !== "string" || bod.length === 0) {
+    return json(
+      {
+        errors: {
+          occupation: null,
+          address: null,
+          phoneNumber: null,
+          bod: "Tanggal Lahir tidak boleh kosong!"
+        }
+      },
+      { status: 400 },
+    );
+  }
+
+  await updateUserProfile({
+    userId: id,
+    occupation,
+    address,
+    bod,
+    phoneNumber,
+  })
+
+  return createUserSession({
+    redirectTo,
+    remember: false,
+    request,
+    userId: id,
+  });
 };
 
 export const meta: MetaFunction = () => [{ title: "Lengkapi Profil | Challange" }];
@@ -98,6 +134,7 @@ export default function UserProfilePage() {
   const [address, setAddress] = React.useState("")
   const [occupation, setOccupation] = React.useState("")
   const [phoneNumber, setPhoneNumber] = React.useState("")
+  const [date, setDate] = React.useState<Date>()
 
   React.useEffect(() => {
     if (actionData?.errors?.address) {
@@ -105,6 +142,8 @@ export default function UserProfilePage() {
     } else if (actionData?.errors?.occupation) {
       occupationRef.current?.focus()
     } else if (actionData?.errors?.phoneNumber) {
+      phoneNumberRef.current?.focus()
+    } else if (actionData?.errors?.bod) {
       occupationRef.current?.focus()
     }
   }, [actionData]);
@@ -116,7 +155,7 @@ export default function UserProfilePage() {
           Lengkapi profil Anda
         </h3>
         <p className="leading-snug text-sm text-gray-500 mt-2">
-          Mohon untuk melengkapi profil anda untuk melanjutkan
+          Mohon untuk melengkapi profil Anda untuk melanjutkan
         </p>
         <br />
         <Form method="post" className="space-y-10">
@@ -145,7 +184,7 @@ export default function UserProfilePage() {
                   required
                   id="profil-address"
                   name="address"
-                  placeholder="Masukan alamat anda"
+                  placeholder="Masukan alamat Anda"
                   type="text"
                   autoComplete="address"
                   value={address}
@@ -165,7 +204,7 @@ export default function UserProfilePage() {
               <div className="mt-1">
                 <Select value={occupation} onValueChange={(v) => setOccupation(v)}>
                   <SelectTrigger id="occupation" className={cn("text-gray-500", occupation && "text-primary")}>
-                    <SelectValue placeholder="Pilih pekerjaan anda" />
+                    <SelectValue placeholder="Pilih pekerjaan Anda" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="swasta">Swasta</SelectItem>
@@ -191,7 +230,7 @@ export default function UserProfilePage() {
                   required
                   id="profil-phoneNumber"
                   name="phoneNumber"
-                  placeholder="Masukan alamat anda"
+                  placeholder="Masukan No. HP Anda"
                   type="tel"
                   autoComplete="phoneNumber"
                   value={phoneNumber}
@@ -202,6 +241,39 @@ export default function UserProfilePage() {
                 {actionData?.errors?.phoneNumber ? (
                   <div className="pt-2 text-sm text-red-500" id="profile-phoneNumber-error">
                     {actionData.errors.phoneNumber}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+            <div className="w-full">
+              <Label>Tanggal Lahir</Label>
+              <div className="mt-1">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date ? format(date, "PPP", { locale: localID }) : <span>Pilih tanggal lahir Anda</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      locale={localID}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <input type="hidden" name="bod" value={String(date ?? "")} />
+                {actionData?.errors?.bod ? (
+                  <div className="pt-2 text-sm text-red-500" id="bod-error">
+                    {actionData.errors.bod}
                   </div>
                 ) : null}
               </div>

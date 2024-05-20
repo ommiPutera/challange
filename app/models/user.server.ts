@@ -29,6 +29,30 @@ export async function createUser(email: User["email"], password: string, fullNam
   });
 }
 
+export async function updateUserProfile({
+  userId,
+  address,
+  phoneNumber,
+  bod,
+  occupation
+}: {
+  userId: string
+  occupation: string
+  bod: string
+  address: string
+  phoneNumber: string
+}) {
+  return prisma.user.update({
+    where: { id: userId },
+    data: {
+      address: address,
+      phoneNumber: phoneNumber,
+      bod: bod,
+      occupation: occupation
+    }
+  }); 
+}
+
 export async function setUserAcitve({userId}: { userId: string }) {
   return prisma.user.update({
     where: { id: userId },

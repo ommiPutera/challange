@@ -102,13 +102,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     userId: user.id
   })
   return redirect(redirectTo)
-
-  // return createUserSession({
-  //   redirectTo,
-  //   remember: false,
-  //   request,
-  //   userId: user.id,
-  // });
 };
 
 export const meta: MetaFunction = () => [{ title: "Daftar | Challange" }];

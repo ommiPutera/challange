@@ -6,8 +6,8 @@ import { cn } from "~/lib/utils";
 import { Icon } from "../icons";
 
 const sizes = {
-  md: "h-10 md:h-9 rounded-md text-sm",
-  sm: "h-9 md:h-8 rounded-md text-sm",
+  md: "h-10 md:h-10 rounded-lg text-sm",
+  sm: "h-9 md:h-9 rounded-md text-sm",
 };
 
 const inputVariants = cva(

@@ -8,13 +8,19 @@ generator client {
 }
 
 model User {
-  id       String  @id @default(cuid())
-  email    String  @unique
-  fullName String  @default("")
+  id    String @id @default(cuid())
+  email String @unique
+
   isActive Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  fullName    String @default("")
+  occupation  String @default("")
+  phoneNumber String @default("")
+  address     String @default("")
+  bod         String @default("")
 
   password Password?
   notes    Note[]
