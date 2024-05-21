@@ -12,166 +12,86 @@ import { Label } from "~/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
+import { updateUserProfile } from "~/models/user.server";
 import { useUser, validateEmail } from "~/utils";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const email = formData.get("email");
-  const password = formData.get("password");
   const fullName = formData.get("fullName");
   const address = formData.get("address");
   const occupation = formData.get("occupation");
   const phoneNumber = formData.get("phoneNumber");
   const bod = formData.get("bod");
+  const userId = formData.get("userId");
+
+  const errors = {
+    email: null,
+    password: null,
+    fullName: null,
+    occupation: null,
+    address: null,
+    phoneNumber: null,
+    bod: null,
+  }
+
+  if (typeof userId !== 'string') throw new Error('Terjadi Kesalaan')
 
   if (typeof address !== "string" || address.length === 0) {
     return json(
-      {
-        errors: {
-          email: null,
-          password: null,
-          fullName: null,
-          occupation: null,
-          address: "Alamat tidak boleh kosong!",
-          phoneNumber: null,
-          bod: null,
-        }
-      },
+      { errors: { ...errors, address: "Alamat tidak boleh kosong!" } },
       { status: 400 },
     );
   }
 
   if (typeof occupation !== "string" || occupation.length === 0) {
     return json(
-      {
-        errors: {
-          email: null,
-          password: null,
-          fullName: null,
-          occupation: "Pekerjaan tidak boleh kosong!",
-          address: null,
-          phoneNumber: null,
-          bod: null,
-        }
-      },
+      { errors: { ...errors, occupation: "Pekerjaan tidak boleh kosong!" } },
       { status: 400 },
     );
   }
 
   if (!validateEmail(email)) {
     return json(
-      {
-        errors: {
-          email: "Email tidak valid",
-          password: null,
-          fullName: null,
-          occupation: null,
-          address: null,
-          phoneNumber: null,
-          bod: null,
-        }
-      },
+      { errors: { ...errors, email: "Email tidak valid" } },
       { status: 400 },
     );
   }
 
   if (typeof fullName !== "string" || fullName.length === 0) {
     return json(
-      {
-        errors: {
-          email: null,
-          password: null,
-          fullName: "Nama Lengkap tidak boleh kosong!",
-          occupation: null,
-          address: null,
-          phoneNumber: null,
-          bod: null,
-        }
-      },
-      { status: 400 },
-    );
-  }
-
-  if (typeof password !== "string" || password.length === 0) {
-    return json(
-      {
-        errors: {
-          email: null,
-          password: "Kata Sandi tidak boleh kosong!",
-          fullName: null,
-          occupation: null,
-          address: null,
-          phoneNumber: null,
-          bod: null,
-        }
-      },
-      { status: 400 },
-    );
-  }
-
-  if (password.length < 8) {
-    return json(
-      {
-        errors: {
-          email: null,
-          password: "Kata Sandi terlalu pendek",
-          fullName: null,
-          occupation: null,
-          address: null,
-          phoneNumber: null,
-          bod: null,
-        }
-      },
+      { errors: { ...errors, fullName: "Nama Lengkap tidak boleh kosong!" } },
       { status: 400 },
     );
   }
 
   if (typeof phoneNumber !== "string" || phoneNumber.length === 0) {
     return json(
-      {
-        errors: {
-          email: null,
-          password: null,
-          fullName: null,
-          occupation: null,
-          address: null,
-          phoneNumber: "No Telp tidak boleh kosong!",
-          bod: null,
-        }
-      },
+      { errors: { ...errors, phoneNumber: "No Telp tidak boleh kosong!" } },
       { status: 400 },
     );
   }
 
   if (typeof bod !== "string" || bod.length === 0) {
     return json(
-      {
-        errors: {
-          email: null,
-          password: null,
-          fullName: null,
-          occupation: null,
-          address: null,
-          phoneNumber: null,
-          bod: "Tanggal Lahir tidak boleh kosong!",
-        }
-      },
+      { errors: { ...errors, bod: "Tanggal Lahir tidak boleh kosong!" } },
       { status: 400 },
     );
   }
 
+
+  await updateUserProfile({
+    fullName,
+    email,
+    userId,
+    occupation,
+    address,
+    bod,
+    phoneNumber,
+  })
+
   return json(
-    {
-      errors: {
-        email: null,
-        password: null,
-        fullName: null,
-        occupation: null,
-        address: null,
-        phoneNumber: null,
-        bod: null,
-      }
-    },
+    { errors: { ...errors } },
     { status: 200 },
   )
 };
@@ -214,26 +134,10 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen">
       <div className="w-full flex flex-col gap-6 max-w-screen-sm">
-        <h1 className="text-2xl font-bold">Profil</h1>
+        <h1 className="text-2xl font-bold">Profil Anda</h1>
         <div className="bg-white p-8 rounded-2xl border flex flex-col">
-          <Form method="post" className="space-y-10">
+          <Form method="post" className="space-y-10" onSubmit={() => setIsEditing(false)}>
             <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <img
-                  src="/no-profile.jpg"
-                  alt=""
-                  width="70px"
-                  height="70px"
-                  className="rounded-full"
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                >
-                  Unggah Foto
-                </Button>
-              </div>
               <div className="flex gap-5 items-center justify-between">
                 <div className="w-full">
                   <Label htmlFor="profile-fullName">Nama Lengkap</Label>
@@ -370,12 +274,15 @@ export default function ProfilePage() {
                         {date ? format(date, "PPP", { locale: localID }) : <span>Pilih tanggal lahir Anda</span>}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
+                    <PopoverContent className="w-full p-0" align="start">
                       <Calendar
                         mode="single"
                         selected={date}
                         onSelect={setDate}
                         locale={localID}
+                        fromYear={1900}
+                        toYear={new Date().getFullYear()}
+                        captionLayout="dropdown-buttons"
                       />
                     </PopoverContent>
                   </Popover>
@@ -388,6 +295,7 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
+            <input type="hidden" className="hidden" name="userId" value={user.id} />
             <div className="flex gap-3">
               <Button
                 type="button"

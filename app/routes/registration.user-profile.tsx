@@ -160,22 +160,6 @@ export default function UserProfilePage() {
         <br />
         <Form method="post" className="space-y-10">
           <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <img
-                src="/no-profile.jpg"
-                alt=""
-                width="70px"
-                height="70px"
-                className="rounded-full"
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-              >
-                Unggah Foto
-              </Button>
-            </div>
             <div className="w-full">
               <Label htmlFor="profil-address">Alamat</Label>
               <div className="mt-1">
@@ -261,12 +245,15 @@ export default function UserProfilePage() {
                       {date ? format(date, "PPP", { locale: localID }) : <span>Pilih tanggal lahir Anda</span>}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-full p-0">
+                  <PopoverContent className="w-full p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={date}
                       onSelect={setDate}
                       locale={localID}
+                      fromYear={1900}
+                      toYear={new Date().getFullYear()}
+                      captionLayout="dropdown-buttons"
                     />
                   </PopoverContent>
                 </Popover>

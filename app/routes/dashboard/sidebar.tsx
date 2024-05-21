@@ -21,9 +21,9 @@ export default function DashboardSidebar() {
                   {user?.fullName?.[0]}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex flex-col">
+              <div className="flex flex-col overflow-hidden">
                 <h3 className="text-sm font-medium leading-tight text-primary">{user.fullName}</h3>
-                <p className="text-xs text-gray-500">{user.email}</p>
+                <p className="text-xs text-gray-500 leading-tight">{user.email}</p>
               </div>
             </div>
           </Link>

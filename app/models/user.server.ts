@@ -34,17 +34,21 @@ export async function updateUserProfile({
   address,
   phoneNumber,
   bod,
-  occupation
+  occupation,
+  ...rest
 }: {
   userId: string
   occupation: string
   bod: string
   address: string
   phoneNumber: string
+  email?: string
+  fullName?: string
 }) {
   return prisma.user.update({
     where: { id: userId },
     data: {
+      ...rest,
       address: address,
       phoneNumber: phoneNumber,
       bod: bod,

@@ -9,6 +9,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import 'react-day-picker/dist/style.css';
 
 import { getUser } from "~/session.server";
 import stylesheet from "~/tailwind.css";
