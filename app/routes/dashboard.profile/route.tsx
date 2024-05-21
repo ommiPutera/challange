@@ -91,7 +91,7 @@ export const meta: MetaFunction = () => [{ title: "Profile | Challange" }];
 
 export default function IndexPage() {
   return (
-    <div className="min-h-screen flex flex-col md:flex-row w-full ">
+    <div className="lg:min-h-screen flex flex-col gap-8 lg:flex-row w-full">
       <div className="flex-1">
         <ProfilePage />
       </div>
