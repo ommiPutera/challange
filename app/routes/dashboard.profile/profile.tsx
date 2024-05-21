@@ -49,7 +49,7 @@ export default function ProfilePage() {
   }, [actionData]);
 
   return (
-    <div className="min-h-screen">
+    <div>
       <div className="w-full flex flex-col gap-6 max-w-screen-sm">
         <h1 className="text-2xl font-bold">Profil Anda</h1>
         <div className="bg-white p-8 rounded-2xl border flex flex-col">

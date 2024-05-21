@@ -3,6 +3,7 @@ import { ActionFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { updateUserProfile } from "~/models/user.server";
 import { validateEmail } from "~/utils";
 
+import PasswordPage from "./password";
 import ProfilePage from "./profile";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -90,8 +91,13 @@ export const meta: MetaFunction = () => [{ title: "Profile | Challange" }];
 
 export default function IndexPage() {
   return (
-    <div>
-      <ProfilePage />
+    <div className="min-h-screen flex flex-col md:flex-row w-full ">
+      <div className="flex-1">
+        <ProfilePage />
+      </div>
+      <div className="flex-1">
+        <PasswordPage />
+      </div>
     </div>
   )
 }
