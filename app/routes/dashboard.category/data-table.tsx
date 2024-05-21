@@ -30,7 +30,7 @@ export function DataTable<TData, TValue>({
   })
 
   return (
-    <div className="bg-white p-8 rounded-2xl border flex flex-col">
+    <div className="border rounded-lg flex flex-col">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

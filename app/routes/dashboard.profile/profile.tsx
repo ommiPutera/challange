@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~
 import { cn } from "~/lib/utils";
 import { useUser } from "~/utils";
 
-import { action } from "./route";
+import { EnumAction, action } from "./route";
 
 export default function ProfilePage() {
   const user = useUser()
@@ -23,7 +23,6 @@ export default function ProfilePage() {
   const occupationRef = React.useRef<HTMLInputElement>(null);
   const fullNameRef = React.useRef<HTMLInputElement>(null);
   const emailRef = React.useRef<HTMLInputElement>(null);
-  const passwordRef = React.useRef<HTMLInputElement>(null);
   const phoneNumberRef = React.useRef<HTMLInputElement>(null);
 
   const [isEditing, setIsEditing] = React.useState(false)
@@ -41,8 +40,6 @@ export default function ProfilePage() {
       fullNameRef.current?.focus();
     } else if (actionData?.errors?.email) {
       emailRef.current?.focus();
-    } else if (actionData?.errors?.password) {
-      passwordRef.current?.focus();
     } else if (actionData?.errors?.phoneNumber) {
       phoneNumberRef.current?.focus()
     }
@@ -50,10 +47,21 @@ export default function ProfilePage() {
 
   return (
     <div>
-      <div className="w-full flex flex-col gap-6 max-w-screen-sm">
+      <div className="w-full flex flex-col gap-6">
         <h1 className="text-2xl font-bold">Profil Anda</h1>
         <div className="bg-white p-8 rounded-2xl border flex flex-col">
-          <Form method="post" className="space-y-10" onSubmit={() => setIsEditing(false)}>
+          <Form
+            method="post"
+            className="space-y-10"
+            onSubmit={() => {
+              if (
+                actionData?.errors?.address === null &&
+                actionData?.errors?.occupation === null
+              ) {
+                setIsEditing(false)
+              }
+            }}
+          >
             <div className="space-y-6">
               <div className="flex gap-5 items-center justify-between">
                 <div className="w-full">
@@ -213,6 +221,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <input type="hidden" className="hidden" name="userId" value={user.id} />
+            <input type="hidden" className="hidden" name="_action" value={EnumAction.PROFILE} />
             <div className="flex gap-3">
               <Button
                 type="button"

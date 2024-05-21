@@ -10,7 +10,7 @@ import { useUser } from "~/utils";
 export default function DashboardSidebar() {
   const user = useUser()
   return (
-    <div className="hidden md:block min-h-screen bg-white">
+    <div className="hidden md:block min-h-screen bg-white border-r">
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex items-center px-7 pt-4 pb-2">
           <Link to="/dashboard/profile" className="border w-full px-4 py-6 bg-muted/50 rounded-lg hover:border-gray-300">
