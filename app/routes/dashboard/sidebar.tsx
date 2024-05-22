@@ -31,7 +31,7 @@ export default function DashboardSidebar() {
         <div className="flex-1">
           <nav className="flex flex-col gap-1 items-start px-7 text-sm font-medium">
             <NavItem iconName="PanelsLeftBottom" title="Beranda" href="/dashboard" />
-            <NavItem iconName="Package" title="Daftar Barang" href="/dashboard/goods" />
+            <NavItem iconName="Package" title="Daftar Barang" href="/dashboard/item" />
             <NavItem iconName="ListTodo" title="Kategori Barang" href="/dashboard/category" />
             <div className="w-full h-[1px] bg-gray-100 my-3"></div>
             <NavItem iconName="User" title="Profil" href="/dashboard/profile" />
