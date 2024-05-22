@@ -4,7 +4,7 @@ import { useLoaderData } from "@remix-run/react";
 
 import { Button } from "~/components/ui/button";
 import { getAllCategory } from "~/models/category.server";
-import { createItem, getAllItem, updateItem } from "~/models/item.server";
+import { createItem, deleteItem, getAllItem, updateItem } from "~/models/item.server";
 
 import AddItem from "./add-item";
 import { columns } from "./columns";
@@ -13,7 +13,8 @@ import { DataTable } from "./data-table";
 
 export enum EnumAction {
   UPDATE = "UPDATE",
-  CREATE = "CREATE"
+  CREATE = "CREATE",
+  DELETE = "DELETE",
 }
 
 export const loader = async () => {
@@ -63,6 +64,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         itemBrand,
         itemCategoryId
       )
+    }
+    case EnumAction.DELETE: {
+      if (!itemId) throw new Error('Terjadi Kesalaan')
+      return deleteItem(String(itemId))
     }
   }
 }

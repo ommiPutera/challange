@@ -24,3 +24,11 @@ export async function updateCategory(id: string, name: Category["name"]) {
     }
   });
 }
+
+export async function deleteCategory(id: string) {
+  return prisma.category.delete({
+    where: {
+      id: id
+    }
+  });
+}

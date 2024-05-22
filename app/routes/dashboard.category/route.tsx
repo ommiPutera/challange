@@ -3,7 +3,7 @@ import { ActionFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 import { Button } from "~/components/ui/button";
-import { createCategory, getAllCategory, updateCategory } from "~/models/category.server";
+import { createCategory, deleteCategory, getAllCategory, updateCategory } from "~/models/category.server";
 
 import AddCategory from "./add-category";
 import { columns } from "./columns";
@@ -11,7 +11,8 @@ import { DataTable } from "./data-table";
 
 export enum EnumAction {
   UPDATE = "UPDATE",
-  CREATE = "CREATE"
+  CREATE = "CREATE",
+  DELETE = "DELETE",
 }
 
 export const loader = async () => {
@@ -38,6 +39,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     case EnumAction.UPDATE: {
       if (!categoryId) throw new Error('Terjadi Kesalaan')
       return await updateCategory(String(categoryId), categoryName)
+    }
+    case EnumAction.DELETE: {
+      if (!categoryId) throw new Error('Terjadi Kesalaan')
+      return deleteCategory(String(categoryId))
     }
   }
 

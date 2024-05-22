@@ -40,3 +40,11 @@ export async function updateItem(id: string, name: Item["name"], brand: Item["br
     }
   });
 }
+
+export async function deleteItem(id: string) {
+  return prisma.item.delete({
+    where: {
+      id: id
+    }
+  });
+}
