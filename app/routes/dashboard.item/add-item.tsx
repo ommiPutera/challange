@@ -14,7 +14,7 @@ export default function AddItem({ children }: { children: React.ReactNode }) {
   const { categories } = useLoaderData<typeof loader>();
 
   const [isOpen, setIsOpen] = React.useState(false)
-  const [itemCategory, setItemCategory] = React.useState("")
+  const [itemCategory, setItemCategory] = React.useState<string | undefined>(undefined)
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -23,7 +23,14 @@ export default function AddItem({ children }: { children: React.ReactNode }) {
         <SheetHeader>
           <SheetTitle>Buat Barang</SheetTitle>
         </SheetHeader>
-        <Form method="post" className="space-y-6 mt-8" onSubmit={() => setIsOpen(false)}>
+        <Form
+          method="post"
+          className="space-y-6 mt-8"
+          onSubmit={() => {
+            setIsOpen(false)
+            setItemCategory(undefined)
+          }}
+        >
           <div className="space-y-4">
             <div>
               <Label htmlFor="item-name">Nama Barang</Label>
@@ -58,7 +65,7 @@ export default function AddItem({ children }: { children: React.ReactNode }) {
             <div>
               <Label htmlFor="item-category">Kategori Barang</Label>
               <div className="mt-1">
-                <Select value={itemCategory} onValueChange={(v) => setItemCategory(v)}>
+                <Select required value={itemCategory} onValueChange={(v) => setItemCategory(v)}>
                   <SelectTrigger id="item-category" className={cn("text-gray-500", itemCategory && "text-primary")}>
                     <SelectValue placeholder="Pilih kategori barang" />
                   </SelectTrigger>

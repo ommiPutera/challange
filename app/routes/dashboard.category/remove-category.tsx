@@ -36,20 +36,20 @@ export function RemoveCategory({
           </p>
         </div>
         <DialogFooter className="w-full">
-          <Form method="post" className="space-y-6 mt-8">
-            <input type="hidden" className="hidden" name="_action" value={EnumAction.DELETE} />
-            <input type="hidden" className="hidden" name="category-id" value={row.id} />
-            <DialogClose className="w-full" asChild>
+          <DialogClose className="w-full" asChild>
+            <Form method="post" className="flex w-full gap-4">
+              <input type="hidden" className="hidden" name="_action" value={EnumAction.DELETE} />
+              <input type="hidden" className="hidden" name="category-id" value={row.id} />
               <Button className="w-full" type="submit" size="sm">
                 Ya, Hapus
               </Button>
-            </DialogClose>
-            <DialogClose className="w-full" asChild>
-              <Button className="w-full" type="button" variant="secondary" size="sm">
-                Batalkan
-              </Button>
-            </DialogClose>
-          </Form>
+            </Form>
+          </DialogClose>
+          <DialogClose className="w-full" asChild>
+            <Button className="w-full" type="button" variant="secondary" size="sm">
+              Batalkan
+            </Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

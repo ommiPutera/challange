@@ -29,6 +29,20 @@ export async function deleteCategory(id: string) {
   return prisma.category.delete({
     where: {
       id: id
+    },
+    include: {
+      Item: true
     }
   });
+}
+
+export async function checkCategory(id: string) {
+  return prisma.category.findUnique({
+    where: {
+      id: id
+    },
+    include: {
+      Item: true
+    }
+  })
 }

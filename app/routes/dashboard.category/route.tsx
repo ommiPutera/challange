@@ -1,13 +1,16 @@
 import { Category } from "@prisma/client";
 import { ActionFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { jsonWithError } from "remix-toast";
 
 import { Button } from "~/components/ui/button";
-import { createCategory, deleteCategory, getAllCategory, updateCategory } from "~/models/category.server";
+import { checkCategory, createCategory, deleteCategory, getAllCategory, updateCategory } from "~/models/category.server";
 
 import AddCategory from "./add-category";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
+
+
 
 export enum EnumAction {
   UPDATE = "UPDATE",
@@ -30,22 +33,39 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const _action = formData.get("_action");
 
-  if (typeof categoryName !== 'string') throw new Error('Terjadi Kesalaan')
-
   switch (_action) {
     case EnumAction.CREATE: {
-      return await createCategory(categoryName)
+      if (typeof categoryName !== 'string') throw new Error('Terjadi Kesalaan')
+      await createCategory(categoryName)
+
+      return json(
+        { errors: { message: "" } },
+        { status: 200 },
+      );
     }
     case EnumAction.UPDATE: {
-      if (!categoryId) throw new Error('Terjadi Kesalaan')
-      return await updateCategory(String(categoryId), categoryName)
+      if (!categoryId || typeof categoryName !== 'string') throw new Error('Terjadi Kesalaan')
+      await updateCategory(String(categoryId), categoryName)
+
+      return json(
+        { errors: { message: "" } },
+        { status: 200 },
+      );
     }
     case EnumAction.DELETE: {
       if (!categoryId) throw new Error('Terjadi Kesalaan')
-      return deleteCategory(String(categoryId))
+      const category = await checkCategory(String(categoryId))
+      if (category?.Item.length) {
+        return jsonWithError(null, `Kategori ${category.name} masih memiliki keterkaitan dengan data Daftar Barang!`);
+      }
+
+      await deleteCategory(String(categoryId))
+      return json(
+        { errors: { message: "" }, toast: { message: "woi" } },
+        { status: 200 },
+      );
     }
   }
-
 }
 
 export const meta: MetaFunction = () => [{ title: "Kategori Barang | Challange" }];

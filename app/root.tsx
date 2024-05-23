@@ -8,11 +8,18 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
+import React from "react";
+import { getToast } from "remix-toast";
 import 'react-day-picker/dist/style.css';
 
 import { getUser } from "~/session.server";
 import stylesheet from "~/tailwind.css";
+
+import { Toaster } from "./components/ui/toaster";
+import { useToast } from "./components/ui/use-toast";
+
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -20,10 +27,35 @@ export const links: LinksFunction = () => [
 ];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  return json({ user: await getUser(request) });
-};
+  const { toast, headers } = await getToast(request);
+  return json({ toast, user: await getUser(request) }, { headers });
+}
 
 export default function App() {
+  const { toast: notify } = useToast()
+
+  const { toast } = useLoaderData<typeof loader>();
+
+
+  React.useEffect(() => {
+    const getVariant = () => {
+      switch (toast?.type) {
+        case "error":
+          return "destructive"
+        default:
+          return "default"
+      }
+    }
+
+    if (toast) {
+      notify({
+        title: toast?.description,
+        description: toast?.message,
+        variant: getVariant(),
+      })
+    }
+  }, [notify, toast]);
+
   return (
     <html lang="en" className="h-full">
       <head>
@@ -36,6 +68,7 @@ export default function App() {
         <Outlet />
         <ScrollRestoration />
         <Scripts />
+        <Toaster />
         <LiveReload />
       </body>
     </html>
