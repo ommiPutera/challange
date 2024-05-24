@@ -47,6 +47,13 @@ Link [Generate Email App Pass](https://itsupport.umd.edu/itsupport?id=kb_article
 Silahkan gunakan akun ini untul login atau mulai dengan registrasi
 
 ```sh
-  email: ommi@dev.run
-  pass: super-secret
+email: "ommi@dev.run"
+pass: "super-secret"
+```
+
+
+## Database
+
+```sh
+npx prisma studio
 ```
