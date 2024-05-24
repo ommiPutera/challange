@@ -42,6 +42,8 @@ export default function App() {
       switch (toast?.type) {
         case "error":
           return "destructive"
+        case "success":
+          return "success"
         default:
           return "default"
       }

@@ -35,7 +35,6 @@ export default function DashboardSidebar() {
             <NavItem iconName="ListTodo" title="Kategori Barang" href="/dashboard/category" />
             <div className="w-full h-[1px] bg-gray-100 my-3"></div>
             <NavItem iconName="User" title="Profil" href="/dashboard/profile" />
-            <NavItem iconName="MessageCircle" title="Pesan" href="/dashboard/chat" />
           </nav>
           <div className="absolute bottom-8 w-full px-7">
             <Form action="/logout" method="post" className="w-full">

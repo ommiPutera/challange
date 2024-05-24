@@ -99,3 +99,40 @@ export async function verifyLogin(
 
   return userWithoutPassword;
 }
+
+export async function updatePassword(
+  userId: User["id"],
+  currentPassword: Password['hash'],
+  newPassword: string,
+) {
+  const userWithPassword = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      password: true,
+    },
+  });
+
+  if (!userWithPassword || !userWithPassword.password) {
+    return null;
+  }
+  
+  const isValid = await bcrypt.compare(
+    currentPassword,
+    userWithPassword.password.hash,
+  );
+
+  if (!isValid) {
+    return null;
+  }
+
+  console.log('isValid', isValid);
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  return prisma.password.update({
+    where: { userId },
+    data: {
+      hash: hashedPassword
+    }
+  }); 
+}

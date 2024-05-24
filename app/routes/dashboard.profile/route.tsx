@@ -1,10 +1,12 @@
 import { ActionFunctionArgs, MetaFunction, json } from "@remix-run/node";
+import { jsonWithError, jsonWithSuccess } from "remix-toast";
 
-import { updateUserProfile } from "~/models/user.server";
+import { updatePassword, updateUserProfile } from "~/models/user.server";
 import { validateEmail } from "~/utils";
 
 import PasswordPage from "./password";
 import ProfilePage from "./profile";
+
 
 export enum EnumAction {
   PROFILE = "PROFILE",
@@ -114,7 +116,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           { status: 400 },
         );
       }
-      return json({ errors: { ...errors } }, { status: 200 })
+
+      const password = await updatePassword(userId, currentPassword, newPassword)
+      if (!password) {
+        return jsonWithError(null, "Kata Sandi Salah!");
+      }
+
+      return jsonWithSuccess(null, `Kata Sandi berhasil diubah!`);
     }
   }
 };

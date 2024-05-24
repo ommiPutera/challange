@@ -34,12 +34,7 @@ export default function PasswordPage() {
             method="post"
             className="space-y-10"
             onSubmit={() => {
-              if (
-                actionData?.errors?.currentPassword === null &&
-                actionData?.errors?.newPassword === null
-              ) {
-                setIsEditing(false)
-              }
+              setIsEditing(false)
             }}
           >
             <div className="space-y-6">
@@ -54,7 +49,6 @@ export default function PasswordPage() {
                     disabled={!isEditing}
                     placeholder="Kata Sandi (Minimal 8 karakter)"
                     type="password"
-                    autoComplete="new-currentPassword"
                     aria-invalid={actionData?.errors?.currentPassword ? true : undefined}
                     aria-describedby="current-password-error"
                   />
@@ -76,7 +70,6 @@ export default function PasswordPage() {
                     disabled={!isEditing}
                     placeholder="Kata Sandi (Minimal 8 karakter)"
                     type="password"
-                    autoComplete="new-newPassword"
                     aria-invalid={actionData?.errors?.newPassword ? true : undefined}
                     aria-describedby="new-password-error"
                   />

@@ -54,12 +54,7 @@ export default function ProfilePage() {
             method="post"
             className="space-y-10"
             onSubmit={() => {
-              if (
-                actionData?.errors?.address === null &&
-                actionData?.errors?.occupation === null
-              ) {
-                setIsEditing(false)
-              }
+              setIsEditing(false)
             }}
           >
             <div className="space-y-6">
@@ -76,7 +71,6 @@ export default function ProfilePage() {
                       name="fullName"
                       placeholder="Nama lengkap Anda"
                       type="text"
-                      autoComplete="fullName"
                       aria-invalid={actionData?.errors?.fullName ? true : undefined}
                       aria-describedby="fullName-error"
                     />
@@ -99,7 +93,6 @@ export default function ProfilePage() {
                       defaultValue={user.email}
                       placeholder="Masukan email anda"
                       type="email"
-                      autoComplete="email"
                       aria-invalid={actionData?.errors?.email ? true : undefined}
                       aria-describedby="email-error"
                     />
@@ -122,7 +115,6 @@ export default function ProfilePage() {
                     name="address"
                     placeholder="Masukan alamat anda"
                     type="text"
-                    autoComplete="address"
                     value={address}
                     onChange={(v) => setAddress(v.target.value)}
                     aria-invalid={actionData?.errors?.address ? true : undefined}
@@ -169,7 +161,6 @@ export default function ProfilePage() {
                     placeholder="Masukan No. HP Anda"
                     type="tel"
                     disabled={!isEditing}
-                    autoComplete="phoneNumber"
                     value={phoneNumber}
                     onChange={(v) => setPhoneNumber(v.target.value)}
                     aria-invalid={actionData?.errors?.phoneNumber ? true : undefined}
